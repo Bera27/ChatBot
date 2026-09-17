@@ -23,6 +23,16 @@ namespace Chatbot.Infrastructure.Data
                 .HasOne(g => g.Resposta)
                 .WithOne()
                 .HasForeignKey<Resposta>(r => r.IdGatilho);
+
+                modelBuilder.Entity<Gatilho>().HasData(
+                    new Gatilho { Id = 1, Nome = "Horário", Resposta = null!});
+
+                modelBuilder.Entity<Resposta>().HasData(
+                    new Resposta { Id = 1, IdGatilho = 1, Texto = "Funcionamos de segunda a sexta, das 8h às 18h." });
+
+                modelBuilder.Entity<Chave>().HasData(
+                    new Chave { Id = 1, IdGatilho = 1, Texto = "horario" },
+                    new Chave { Id = 2, IdGatilho = 1, Texto = "horas" });
         }
     }
 }
