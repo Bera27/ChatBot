@@ -10,6 +10,7 @@ builder.Services.AddDbContext<ChatbotDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSingleton<MatchingService>();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -19,6 +20,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.MapControllers();
 app.UseHttpsRedirection();
 
 app.Run();
