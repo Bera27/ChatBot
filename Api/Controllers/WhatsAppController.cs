@@ -45,7 +45,7 @@ namespace Chatbot.Api.Controllers
             await _context.SaveChangesAsync();
 
             if(gatilhoEncontrado == null)
-                return Content(TransferirChamada(), "application/xml");
+                return Content(TransferirChamada(), "application/xml; charset=utf-8");
 
             var twiml = $"""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -54,7 +54,7 @@ namespace Chatbot.Api.Controllers
                     </Response>
                 """;
 
-            return Content(twiml, "application/xml");   
+            return Content(twiml, "application/xml; charset=utf-8");   
         }
 
         private string TransferirChamada()
