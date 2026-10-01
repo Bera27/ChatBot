@@ -15,7 +15,11 @@ builder.Services.AddSingleton<MatchingService>();
 builder.Services.AddControllers();
 builder.Services.AddTwilioRequestValidation();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
-    options.ForwardedHeaders = ForwardedHeaders.All);
+    {
+        options.ForwardedHeaders = ForwardedHeaders.All;
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
 
 var app = builder.Build();
 
