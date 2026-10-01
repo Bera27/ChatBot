@@ -1,6 +1,8 @@
 using Chatbot.Application.Services;
 using Chatbot.Infrastructure.Data;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Twilio.AspNet.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,13 @@ builder.Services.AddDbContext<ChatbotDbContext>(options =>
 
 builder.Services.AddSingleton<MatchingService>();
 builder.Services.AddControllers();
+builder.Services.AddTwilioRequestValidation();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    options.ForwardedHeaders = ForwardedHeaders.All);
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 using (var scope = app.Services.CreateScope())
 {

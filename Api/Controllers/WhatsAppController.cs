@@ -3,6 +3,7 @@ using Chatbot.Domain;
 using Chatbot.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Twilio.AspNet.Core;
 
 namespace Chatbot.Api.Controllers
 {
@@ -20,6 +21,7 @@ namespace Chatbot.Api.Controllers
         }
 
         [HttpPost("webhook")]
+        [ValidateRequest]
         public async Task<IActionResult> Webhook()
         {
             var form = Request.Form;
