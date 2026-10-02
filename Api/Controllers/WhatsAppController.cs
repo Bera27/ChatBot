@@ -13,11 +13,13 @@ namespace Chatbot.Api.Controllers
     {
         private readonly ChatbotDbContext _context;
         private readonly MatchingService _matching;
+        private readonly IConfiguration _configuration;
 
-        public WhatsAppController(ChatbotDbContext context, MatchingService matching)
+        public WhatsAppController(ChatbotDbContext context, MatchingService matching, IConfiguration configuration)
         {
             _context = context;
             _matching = matching;
+            _configuration = configuration;
         }
 
         [HttpPost("webhook")]
@@ -57,6 +59,27 @@ namespace Chatbot.Api.Controllers
                 """;
 
             return Content(twiml, "application/xml; charset=utf-8");   
+        }
+
+        [HttpPatch("historico/{id:int}/atender")]
+        public async Task<IActionResult> Atender(int id)
+        {
+            var key = Request.Headers["X-Api-Key"];
+            var apiKey = _configuration["ApiKey"];
+
+            if(key != apiKey)
+                return Unauthorized("Acesso Negado!");
+
+            var historico = await _context.Historicos
+                            .FirstOrDefaultAsync(x => x.Id == id);
+
+            if(historico == null)
+                return NotFound("Histórico de conversa não encontrado. Verifique o ID.");
+
+            historico.AtendidoEm = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            
+            return NoContent();
         }
 
         private string TransferirChamada()
