@@ -1,6 +1,7 @@
 using Chatbot.Application.Services;
 using Chatbot.Domain;
 using Chatbot.Infrastructure.Data;
+using Chatbot.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Twilio.AspNet.Core;
@@ -14,12 +15,14 @@ namespace Chatbot.Api.Controllers
         private readonly ChatbotDbContext _context;
         private readonly MatchingService _matching;
         private readonly IConfiguration _configuration;
+        private readonly IWhatsAppNotifier _whatsAppNotifier;
 
-        public WhatsAppController(ChatbotDbContext context, MatchingService matching, IConfiguration configuration)
+        public WhatsAppController(ChatbotDbContext context, MatchingService matching, IConfiguration configuration, IWhatsAppNotifier whatsAppNotifier)
         {
             _context = context;
             _matching = matching;
             _configuration = configuration;
+            _whatsAppNotifier = whatsAppNotifier;
         }
 
         [HttpPost("webhook")]
@@ -49,7 +52,10 @@ namespace Chatbot.Api.Controllers
             await _context.SaveChangesAsync();
 
             if(gatilhoEncontrado == null)
+            {
+                await _whatsAppNotifier.NotificarAsync(sender);
                 return Content(TransferirChamada(), "application/xml; charset=utf-8");
+            }
 
             var twiml = $"""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -67,7 +73,7 @@ namespace Chatbot.Api.Controllers
             var key = Request.Headers["X-Api-Key"];
             var apiKey = _configuration["ApiKey"];
 
-            if(key != apiKey)
+            if (string.IsNullOrEmpty(apiKey) || key != apiKey)
                 return Unauthorized("Acesso Negado!");
 
             var historico = await _context.Historicos

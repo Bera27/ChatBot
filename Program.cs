@@ -1,5 +1,8 @@
+using Chatbot.Api.Controllers;
 using Chatbot.Application.Services;
+using Chatbot.Infrastructure;
 using Chatbot.Infrastructure.Data;
+using Chatbot.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Twilio.AspNet.Core;
@@ -12,6 +15,7 @@ builder.Services.AddDbContext<ChatbotDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSingleton<MatchingService>();
+builder.Services.AddSingleton<IWhatsAppNotifier, WhatsAppNotifier>();
 builder.Services.AddControllers();
 builder.Services.AddTwilioRequestValidation();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
