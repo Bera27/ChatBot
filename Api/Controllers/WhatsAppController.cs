@@ -16,13 +16,15 @@ namespace Chatbot.Api.Controllers
         private readonly MatchingService _matching;
         private readonly IConfiguration _configuration;
         private readonly IWhatsAppNotifier _whatsAppNotifier;
+        private readonly EscalationPauseService _escalation;
 
-        public WhatsAppController(ChatbotDbContext context, MatchingService matching, IConfiguration configuration, IWhatsAppNotifier whatsAppNotifier)
+        public WhatsAppController(ChatbotDbContext context, MatchingService matching, IConfiguration configuration, IWhatsAppNotifier whatsAppNotifier, EscalationPauseService escalation)
         {
             _context = context;
             _matching = matching;
             _configuration = configuration;
             _whatsAppNotifier = whatsAppNotifier;
+            _escalation = escalation;
         }
 
         [HttpPost("webhook")]
@@ -31,7 +33,22 @@ namespace Chatbot.Api.Controllers
         {
             var form = Request.Form;
             var body = form["body"].ToString();
-            var sender = form["From"];
+            var sender = form["From"].ToString();
+
+            var agora = DateTime.UtcNow;
+            var horas = _configuration.GetValue<double>("Escalation:PauseHours", 2);
+            var duracao = TimeSpan.FromHours(horas);
+            var limite = agora - duracao;
+
+            var buscaHistorico = await _context.Historicos
+                                    .Where(x => x.NumeroWhatsApp == sender &&
+                                            x.CriadoEm > limite)
+                                    .ToListAsync();
+
+            var pause = _escalation.IsBotPaused(buscaHistorico, agora, duracao);
+
+            if(pause)
+                return Content("<Response></Response>", "application/xml; charset=utf-8");
 
             var gatilhos = await _context.Gatilhos
                             .Include(x => x.Chaves)
@@ -45,7 +62,7 @@ namespace Chatbot.Api.Controllers
                 IdGatilho = gatilhoEncontrado?.Id,
                 Texto = body,
                 NumeroWhatsApp = sender,
-                CriadoEm = DateTime.UtcNow
+                CriadoEm = agora
             };
 
             _context.Historicos.Add(historico);

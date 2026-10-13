@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ChatbotDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSingleton<MatchingService>();
+builder.Services.AddSingleton<EscalationPauseService>();
 builder.Services.AddSingleton<IWhatsAppNotifier, WhatsAppNotifier>();
 builder.Services.AddControllers();
 builder.Services.AddTwilioRequestValidation();
