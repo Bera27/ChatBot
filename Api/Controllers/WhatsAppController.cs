@@ -2,7 +2,9 @@ using Chatbot.Application.Services;
 using Chatbot.Domain;
 using Chatbot.Infrastructure.Data;
 using Chatbot.Infrastructure.Interfaces;
+using ChatBot.Api.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Twilio.AspNet.Core;
 
@@ -85,14 +87,9 @@ namespace Chatbot.Api.Controllers
         }
 
         [HttpPatch("historico/{id:int}/atender")]
+        [ApiKey]
         public async Task<IActionResult> Atender(int id)
         {
-            var key = Request.Headers["X-Api-Key"];
-            var apiKey = _configuration["ApiKey"];
-
-            if (string.IsNullOrEmpty(apiKey) || key != apiKey)
-                return Unauthorized("Acesso Negado!");
-
             var historico = await _context.Historicos
                             .FirstOrDefaultAsync(x => x.Id == id);
 
