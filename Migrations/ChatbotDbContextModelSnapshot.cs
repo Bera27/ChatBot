@@ -34,7 +34,7 @@ namespace Chatbot.Migrations
 
                     b.HasIndex("IdGatilho");
 
-                    b.ToTable("Chaves");
+                    b.ToTable("Chaves", (string)null);
 
                     b.HasData(
                         new
@@ -63,7 +63,7 @@ namespace Chatbot.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Gatilhos");
+                    b.ToTable("Gatilhos", (string)null);
 
                     b.HasData(
                         new
@@ -98,7 +98,7 @@ namespace Chatbot.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Historicos");
+                    b.ToTable("Historicos", (string)null);
                 });
 
             modelBuilder.Entity("Chatbot.Domain.Resposta", b =>
@@ -119,7 +119,7 @@ namespace Chatbot.Migrations
                     b.HasIndex("IdGatilho")
                         .IsUnique();
 
-                    b.ToTable("Respostas");
+                    b.ToTable("Respostas", (string)null);
 
                     b.HasData(
                         new

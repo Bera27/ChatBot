@@ -116,6 +116,21 @@ namespace ChatBot.Api.Controllers
             ));
         }
 
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+        {
+            var gatilho = await _context.Gatilhos
+                            .FirstOrDefaultAsync(x => x.Id == id);
+
+            if(gatilho == null)
+                return NotFound("Gatilho não encontrado ou inexistente!");
+            
+            _context.Gatilhos.Remove(gatilho);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private static string? ValidarModel(GatilhosDto.GatilhoRequest model)
         {
             if(model is null ||
