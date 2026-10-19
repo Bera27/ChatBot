@@ -35,5 +35,20 @@ namespace ChatBot.Api.Controllers
 
             return Ok(historicoPendentes);
         }
+
+        [HttpPatch("{id:int}/atender")]
+        public async Task<IActionResult> Atender(int id)
+        {
+            var historico = await _context.Historicos
+                            .FirstOrDefaultAsync(x => x.Id == id);
+
+            if(historico == null)
+                return NotFound("Histórico de conversa não encontrado. Verifique o ID.");
+
+            historico.AtendidoEm = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            
+            return NoContent();
+        }
     }
 }
