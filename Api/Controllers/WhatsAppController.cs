@@ -2,9 +2,7 @@ using Chatbot.Application.Services;
 using Chatbot.Domain;
 using Chatbot.Infrastructure.Data;
 using Chatbot.Infrastructure.Interfaces;
-using ChatBot.Api.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Twilio.AspNet.Core;
 
@@ -76,30 +74,16 @@ namespace Chatbot.Api.Controllers
                 return Content(TransferirChamada(), "application/xml; charset=utf-8");
             }
 
+            var texto = System.Security.SecurityElement.Escape(gatilhoEncontrado.Resposta.Texto); 
+
             var twiml = $"""
                 <?xml version="1.0" encoding="UTF-8"?>
                     <Response>
-                        <Message>{gatilhoEncontrado.Resposta.Texto}</Message>
+                        <Message>{texto}</Message>
                     </Response>
                 """;
 
             return Content(twiml, "application/xml; charset=utf-8");   
-        }
-
-        [HttpPatch("historico/{id:int}/atender")]
-        [ApiKey]
-        public async Task<IActionResult> Atender(int id)
-        {
-            var historico = await _context.Historicos
-                            .FirstOrDefaultAsync(x => x.Id == id);
-
-            if(historico == null)
-                return NotFound("Histórico de conversa não encontrado. Verifique o ID.");
-
-            historico.AtendidoEm = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-            
-            return NoContent();
         }
 
         private string TransferirChamada()
