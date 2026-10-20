@@ -42,9 +42,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseDefaultFiles();
 app.UseStaticFiles();
-app.MapGet("/admin", () => Results.Redirect("/admin/"));
+
+app.MapGet("/admin", (IWebHostEnvironment env) =>
+    Results.File(Path.Combine(env.WebRootPath, "admin", "index.html"), "text/html"));
 
 app.MapControllers();
 app.UseHttpsRedirection();
