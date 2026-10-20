@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel do atendimento</title>
+  <link rel="stylesheet" href="/admin/style.css">
+  <script src="/admin/app.js" defer></script>
+</head>
+<body>
+
+  <header id="topo" class="topo" hidden>
+    <div class="topo-linha">
+      <h1>Atendimento</h1>
+      <button id="botao-sair" class="botao-texto" type="button">Sair</button>
+    </div>
+    <nav class="abas" aria-label="Seções do painel">
+      <button type="button" class="aba" data-aba="fila" aria-current="page">
+        Na fila <span id="contagem" class="contagem" hidden>0</span>
+      </button>
+      <button type="button" class="aba" data-aba="respostas">Respostas automáticas</button>
+    </nav>
+  </header>
+
+  <main class="conteudo">
+
+    <!-- Tela de entrada -->
+    <section id="entrada" aria-labelledby="titulo-entrada" hidden>
+      <form id="form-entrada" class="entrada-form">
+        <h1 id="titulo-entrada">Painel do atendimento</h1>
+        <p class="apoio">Digite a chave de acesso para ver quem está esperando e editar as respostas do bot.</p>
+        <label for="campo-chave">Chave de acesso</label>
+        <input id="campo-chave" type="password" autocomplete="current-password" required>
+        <p id="erro-entrada" class="erro" role="alert" hidden></p>
+        <button class="botao" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <!-- Aba: clientes esperando atendimento -->
+    <section id="fila" aria-labelledby="titulo-fila" hidden>
+      <div class="secao-topo">
+        <h2 id="titulo-fila">Esperando atendimento</h2>
+        <button id="atualizar" class="botao-sec" type="button">Atualizar</button>
+      </div>
+      <div id="lista-fila"></div>
+    </section>
+
+    <!-- Aba: respostas automáticas -->
+    <section id="respostas" aria-labelledby="titulo-respostas" hidden>
+      <div class="secao-topo">
+        <h2 id="titulo-respostas">Respostas automáticas</h2>
+        <button id="nova" class="botao" type="button">Nova resposta</button>
+      </div>
+      <p class="apoio">Quando a mensagem do cliente contém uma das palavras, o bot manda a resposta. Se nenhuma combinar, o cliente espera por um atendente.</p>
+      <div id="lista-respostas"></div>
+    </section>
+
+  </main>
+
+  <dialog id="dialogo" aria-labelledby="dialogo-titulo">
+    <form id="form-resposta" novalidate>
+      <h2 id="dialogo-titulo">Nova resposta</h2>
+
+      <label for="campo-nome">Nome</label>
+      <input id="campo-nome" maxlength="80" autocomplete="off" aria-describedby="dica-nome">
+      <p id="dica-nome" class="dica">Só para você se organizar. O cliente não vê.</p>
+
+      <label for="campo-chaves">Palavras que ativam</label>
+      <textarea id="campo-chaves" rows="2" aria-describedby="dica-chaves"></textarea>
+      <p id="dica-chaves" class="dica">Separe com vírgula. Maiúsculas e acentos não importam. Basta o cliente escrever uma delas, em qualquer parte da frase.</p>
+
+      <label for="campo-resposta">Resposta do bot</label>
+      <textarea id="campo-resposta" rows="4"></textarea>
+
+      <p id="erro-dialogo" class="erro" role="alert" hidden></p>
+
+      <div class="acoes">
+        <button type="button" class="botao-sec" id="cancelar">Cancelar</button>
+        <button type="submit" class="botao">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+</body>
+</html>
