@@ -13,6 +13,10 @@ namespace ChatBot.Api.Controllers
     public class GatilhosController : ControllerBase
     {
         private readonly ChatbotDbContext _context;
+        private const int NomeMax = 80;
+        private const int ChavesMax = 30;
+        private const int ChaveTamanhoMax = 50;
+        private const int RespostaMax = 1600;
 
         public GatilhosController(ChatbotDbContext context)
         {
@@ -142,6 +146,18 @@ namespace ChatBot.Api.Controllers
             {
                 return "Dados inválidos. Certifique-se de que o nome, a resposta e todas as chaves foram preenchidos corretamente.";
             }
+
+            if (model.Nome.Trim().Length > NomeMax)
+                return $"O nome pode ter no máximo {NomeMax} caracteres.";
+
+            if (model.Chaves.Count > ChavesMax)
+                return $"Use no máximo {ChavesMax} palavras por resposta.";
+
+            if (model.Chaves.Any(c => c.Trim().Length > ChaveTamanhoMax))
+                return $"Cada palavra pode ter no máximo {ChaveTamanhoMax} caracteres.";
+
+            if (model.Resposta.Trim().Length > RespostaMax)
+                return $"A resposta pode ter no máximo {RespostaMax} caracteres.";
 
             return null;
         }
