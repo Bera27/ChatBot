@@ -2,6 +2,7 @@ using Chatbot.Infrastructure.Data;
 using ChatBot.Api.Dtos;
 using ChatBot.Api.Filters;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatBot.Api.Controllers
@@ -9,6 +10,7 @@ namespace ChatBot.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [ApiKey]
+    [EnableRateLimiting("painel")]
     public class HistoricoController : ControllerBase
     {
         private readonly ChatbotDbContext _context;

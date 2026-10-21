@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Chatbot.Api.Controllers;
 using Chatbot.Application.Services;
 using Chatbot.Infrastructure;
@@ -9,22 +10,7 @@ using Twilio.AspNet.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Services.AddOpenApi();
-builder.Services.AddDbContext<ChatbotDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddSingleton<MatchingService>();
-builder.Services.AddSingleton<EscalationPauseService>();
-builder.Services.AddSingleton<IWhatsAppNotifier, WhatsAppNotifier>();
-builder.Services.AddControllers();
-builder.Services.AddTwilioRequestValidation();
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-    {
-        options.ForwardedHeaders = ForwardedHeaders.All;
-        options.KnownIPNetworks.Clear();
-        options.KnownProxies.Clear();
-    });
+ConfigureServices(builder);
 
 var app = builder.Build();
 
@@ -42,12 +28,49 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseRateLimiter();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.MapGet("/admin", (IWebHostEnvironment env) =>
     Results.File(Path.Combine(env.WebRootPath, "admin", "index.html"), "text/html"));
 
 app.MapControllers();
-app.UseHttpsRedirection();
+
 
 app.Run();
+
+void ConfigureServices(WebApplicationBuilder builder)
+{
+    builder.Services.AddOpenApi();
+
+    builder.Services.AddDbContext<ChatbotDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    builder.Services.AddSingleton<MatchingService>();
+    builder.Services.AddSingleton<EscalationPauseService>();
+    builder.Services.AddSingleton<IWhatsAppNotifier, WhatsAppNotifier>();
+    builder.Services.AddControllers();
+    builder.Services.AddTwilioRequestValidation();
+
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.AddPolicy("painel", context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 60,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                }));
+    });
+
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.All;
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
