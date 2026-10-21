@@ -8,10 +8,12 @@ namespace ChatBot.Api.Filters
     public class ApiKeyFilter : IAuthorizationFilter
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<ApiKeyFilter> _logger;
 
-        public ApiKeyFilter(IConfiguration configuration)
+        public ApiKeyFilter(IConfiguration configuration,ILogger<ApiKeyFilter> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
         
         private static bool ValidarKeys(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)
@@ -24,8 +26,20 @@ namespace ChatBot.Api.Filters
             var key = context.HttpContext.Request.Headers["X-Api-Key"].ToString();
             var apiKey = _configuration["ApiKey"];
 
+            var ip = context.HttpContext.Connection.RemoteIpAddress;
+            var method = context.HttpContext.Request.Method;
+            var path = context.HttpContext.Request.Path;
+
             if (string.IsNullOrEmpty(apiKey))
             {
+                _logger.LogError("ApiKey não configurada no servidor.");
+                context.Result = new UnauthorizedObjectResult("Acesso Negado!");
+                return;
+            }
+
+            if(string.IsNullOrEmpty(key))
+            {
+                _logger.LogWarning("Tentativa de acesso sem chave de API. IP: {Ip}, Método: {Method}, Caminho: {Path}", ip, method, path);
                 context.Result = new UnauthorizedObjectResult("Acesso Negado!");
                 return;
             }
@@ -34,7 +48,10 @@ namespace ChatBot.Api.Filters
             var apiKeyInByte = Encoding.UTF8.GetBytes(apiKey);
 
             if (!ValidarKeys(keyInByte, apiKeyInByte))
+            {
+                _logger.LogWarning("Tentativa de acesso com chave de API inválida. IP: {Ip}, Método: {Method}, Caminho: {Path}", ip, method, path);
                 context.Result = new UnauthorizedObjectResult("Acesso Negado!");
+            }
         }
     }
 }
