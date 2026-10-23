@@ -50,12 +50,6 @@ namespace ChatBot.Api.Filters
             if (!ValidarKeys(keyInByte, apiKeyInByte))
             {
                 _logger.LogWarning("Tentativa de acesso com chave de API inválida. IP: {Ip}, Método: {Method}, Caminho: {Path}", ip, method, path);
-                var req = context.HttpContext.Request;
-                _logger.LogWarning("DIAGNOSTICO IP: Original-For={OriginalFor} | Forwarded-For={ForwardedFor} | Real-IP={RealIp} | Remoto={Ip}",
-                    req.Headers["X-Original-For"].ToString(),
-                    req.Headers["X-Forwarded-For"].ToString(),
-                    req.Headers["X-Real-IP"].ToString(),
-                    ip);
                 context.Result = new UnauthorizedObjectResult("Acesso Negado!");
             }
         }

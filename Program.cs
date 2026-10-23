@@ -85,5 +85,6 @@ void ConfigureServices(WebApplicationBuilder builder)
         options.ForwardedHeaders = ForwardedHeaders.All;
         options.KnownIPNetworks.Clear();
         options.KnownProxies.Clear();
+        options.ForwardLimit = 2;
     });
 }
