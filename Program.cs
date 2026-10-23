@@ -30,6 +30,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseRateLimiter();
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "no-referrer";
+    headers["Content-Security-Policy"] =
+        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; " +
+        "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+    await next();
+});
+
 app.UseStaticFiles();
 
 app.MapGet("/admin", (IWebHostEnvironment env) =>
