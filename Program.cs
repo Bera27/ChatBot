@@ -63,6 +63,8 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddSingleton<MatchingService>();
     builder.Services.AddSingleton<EscalationPauseService>();
     builder.Services.AddSingleton<IWhatsAppNotifier, WhatsAppNotifier>();
+    builder.Services.AddSingleton<HistoricoRetencao>();
+    builder.Services.AddHostedService<HistoricoRetencaoService>();
     builder.Services.AddControllers();
     builder.Services.AddTwilioRequestValidation();
 
