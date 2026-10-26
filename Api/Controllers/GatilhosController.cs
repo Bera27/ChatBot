@@ -109,7 +109,7 @@ namespace ChatBot.Api.Controllers
 
             gatilho.Nome = model.Nome.Trim();
             gatilho.Chaves = [.. model.Chaves.Select(texto => new Chave {Texto = texto.Trim()})];
-            gatilho.Resposta.Texto = model.Resposta;
+            gatilho.Resposta.Texto = model.Resposta.Trim();
 
             await _context.SaveChangesAsync();
 
